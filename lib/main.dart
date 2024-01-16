@@ -1,3 +1,7 @@
+// ignore_for_file: use_key_in_widget_constructors
+
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -25,32 +29,39 @@ class WeatherDetails extends StatefulWidget {
 }
 
 class _WeatherDetailsState extends State<WeatherDetails> {
-  String city = 'Stuttgart';
-  double temperature = -4.0;
-  double feelsLike = -10.0;
-  double precipitation = 15.0;
-  String timeOfDay = 'Tag';
-  double latitude = 48.783;
-  double longitude = 9.183;
+  String city = '';
+  double temperature = 0.0;
+  double feelsLike = 0.0;
+  double precipitation = 0.0;
+  String timeOfDay = '';
+  double latitude = 0.0;
+  double longitude = 0.0;
 
   void updateForecast() {
-    
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Vorhersage update'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
+   
+    String jsonString = '''
+    {
+      "city": "Stuttgart",
+      "temperature": -4.0,
+      "feelsLike": -10.0,
+      "precipitation": 15.0,
+      "timeOfDay": "Tag",
+      "latitude": 48.783,
+      "longitude": 9.183
+    }
+    ''';
+
+    Map<String, dynamic> weatherData = json.decode(jsonString);
+
+    setState(() {
+      city = weatherData['city'];
+      temperature = weatherData['temperature'];
+      feelsLike = weatherData['feelsLike'];
+      precipitation = weatherData['precipitation'];
+      timeOfDay = weatherData['timeOfDay'];
+      latitude = weatherData['latitude'];
+      longitude = weatherData['longitude'];
+    });
   }
 
   @override
