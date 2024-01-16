@@ -1,13 +1,14 @@
-// ignore_for_file: use_key_in_widget_constructors
 
+// ignore_for_file: unused_import
+
+import 'package:http/http.dart';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 
 void main() {
   runApp(MyWeatherApp());
 }
-
+ 
 class MyWeatherApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -36,32 +37,39 @@ class _WeatherDetailsState extends State<WeatherDetails> {
   String timeOfDay = '';
   double latitude = 0.0;
   double longitude = 0.0;
+  
+  get http => null;
 
-  void updateForecast() {
-   
-    String jsonString = '''
-    {
-      "city": "Stuttgart",
-      "temperature": -4.0,
-      "feelsLike": -10.0,
-      "precipitation": 15.0,
-      "timeOfDay": "Tag",
-      "latitude": 48.783,
-      "longitude": 9.183
+  Future<String> fetchWeatherData() async {
+    const url =
+        'https://api.open-meteo.com/v1/forecast?latitude=48.783333&longitude=9.183333&current=temperature_2m,apparent_temperature,is_day,precipitation&timezone=Europe%2FBerlin&forecast_days=1';
+
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception('Failed to load weather data');
     }
-    ''';
+  }
 
-    Map<String, dynamic> weatherData = json.decode(jsonString);
+  void updateForecast() async {
+    try {
+      String jsonString = await fetchWeatherData();
+      Map<String, dynamic> weatherData = json.decode(jsonString);
 
-    setState(() {
-      city = weatherData['city'];
-      temperature = weatherData['temperature'];
-      feelsLike = weatherData['feelsLike'];
-      precipitation = weatherData['precipitation'];
-      timeOfDay = weatherData['timeOfDay'];
-      latitude = weatherData['latitude'];
-      longitude = weatherData['longitude'];
-    });
+      setState(() {
+        city = 'Stuttgart'; // Stadt kann direkt aus dem JSON-Objekt genommen werden, falls verfügbar
+        temperature = weatherData['current']['temperature_2m'];
+        feelsLike = weatherData['current']['apparent_temperature'];
+        precipitation = weatherData['current']['precipitation'];
+        timeOfDay = weatherData['current']['is_day'] ? 'Tag' : 'Nacht';
+        latitude = weatherData['latitude'];
+        longitude = weatherData['longitude'];
+      });
+    } catch (e) {
+      print('Fehler beim Abrufen der Wetterdaten: $e');
+    }
   }
 
   @override
