@@ -8,7 +8,10 @@ import 'package:flutter/material.dart';
 void main() {
   runApp(MyWeatherApp());
 }
- 
+  const url =
+        'https://api.open-meteo.com/v1/forecast?latitude=48.783333&longitude=9.183333&current=temperature_2m,apparent_temperature,is_day,precipitation&timezone=Europe%2FBerlin&forecast_days=1';
+
+
 class MyWeatherApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -38,28 +41,31 @@ class _WeatherDetailsState extends State<WeatherDetails> {
   double latitude = 0.0;
   double longitude = 0.0;
   
-  get http => null;
+  
+ 
 
-  Future<String> fetchWeatherData() async {
+  Future<String> get fetchWeatherData async {
     const url =
         'https://api.open-meteo.com/v1/forecast?latitude=48.783333&longitude=9.183333&current=temperature_2m,apparent_temperature,is_day,precipitation&timezone=Europe%2FBerlin&forecast_days=1';
 
-    final response = await http.get(Uri.parse(url));
+   
+    
+    final response = await get(Uri.parse(url));
 
     if (response.statusCode == 200) {
       return response.body;
     } else {
-      throw Exception('Failed to load weather data');
+      throw Exception('Wetter Daten fehlen');
     }
   }
 
   void updateForecast() async {
     try {
-      String jsonString = await fetchWeatherData();
+      String jsonString = await fetchWeatherData;
       Map<String, dynamic> weatherData = json.decode(jsonString);
 
       setState(() {
-        city = 'Stuttgart'; // Stadt kann direkt aus dem JSON-Objekt genommen werden, falls verfügbar
+        city = 'Stuttgart'; 
         temperature = weatherData['current']['temperature_2m'];
         feelsLike = weatherData['current']['apparent_temperature'];
         precipitation = weatherData['current']['precipitation'];
@@ -68,7 +74,7 @@ class _WeatherDetailsState extends State<WeatherDetails> {
         longitude = weatherData['longitude'];
       });
     } catch (e) {
-      print('Fehler beim Abrufen der Wetterdaten: $e');
+      
     }
   }
 
@@ -77,10 +83,13 @@ class _WeatherDetailsState extends State<WeatherDetails> {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Temperatur: ${temperature}°C (Gefühlte Temperatur: ${feelsLike}°C)'),
-          Text('Niederschlag: ${precipitation} mm'),
+          Text('Stadt: $city'),
+          Text('Temperatur: $temperature°C'), 
+          Text('Gefühlte Temperatur: $feelsLike°C'),
+          Text('Niederschlag: $precipitation mm'),
           Text('Tageszeit: $timeOfDay'),
           Text('Standort: Lat $latitude, Long $longitude'),
           const SizedBox(height: 20),
